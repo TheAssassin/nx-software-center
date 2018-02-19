@@ -1,8 +1,33 @@
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Network)
+###
+# Dependencies
+###
+
+include(ExternalProject)
+
+ExternalProject_Add(AppImageUpdate-Qt
+    GIT_REPOSITORY https://github.com/AppImage/AppImageUpdate.git
+    GIT_TAG rewrite
+    CONFIGURE_COMMAND cd <SOURCE_DIR> && git submodule update --init --recursive
+              COMMAND ${CMAKE_COMMAND} -G${CMAKE_GENERATOR} -DCMAKE_INSTALL_PREFIX=/usr
+                      -DBUILD_QT_UI=ON -DBUILD_FLTK_UI=OFF -DUSE_SYSTEM_CURL=1 -DBUILD_CPR_TESTS=0 <SOURCE_DIR>
+    BUILD_COMMAND make libappimageupdate-qt
+    INSTALL_COMMAND make install DESTDIR=<INSTALL_DIR>
+)
+ExternalProject_Get_Property(AppImageUpdate-Qt INSTALL_DIR)
+set(AppImageUpdate-Qt_INSTALL_DIR ${INSTALL_DIR})
+
+set(libappimageupdate-qt_PATH ${AppImageUpdate-Qt_INSTALL_DIR}/usr/lib/libappimageupdate-qt.so)
+add_library(libappimageupdate-qt SHARED IMPORTED)
+set_target_properties(libappimageupdate-qt PROPERTIES IMPORTED_LOCATION ${libappimageupdate-qt_PATH})
+install(FILES ${libappimageupdate-qt_PATH} DESTINATION lib)
+add_dependencies(libappimageupdate-qt AppImageUpdate-Qt)
+
 
 ###
 # Core
 ###
+
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Network)
 
 set(CORE_SRC
     entities/Application.cpp
@@ -53,7 +78,8 @@ target_include_directories(core
     PUBLIC ${Qt5Network_INCLUDE_DIRS}
     PUBLIC ${Qt5Gui_INCLUDE_DIRS}
     PUBLIC ${Qt5Qml_INCLUDE_DIRS}
-    )
+)
+
 
 ###
 # GUI
@@ -82,7 +108,8 @@ set(GUI_SRC
     ui/UpgradesListModel.h
     ui/UpgradesListModel.cpp
     ui/NotificationsController.cpp
-    ui/NotificationsController.h)
+    ui/NotificationsController.h
+)
 
 ## add the qml.qrc file
 qt5_add_resources(qml_QRC qml/files.qrc)
@@ -94,7 +121,7 @@ target_include_directories(gui
     PUBLIC ${Qt5Core_INCLUDE_DIRS}
     PUBLIC ${Qt5Gui_INCLUDE_DIRS}
     PUBLIC ${Qt5Qml_INCLUDE_DIRS}
-    )
+)
 
 
 ######
@@ -107,10 +134,13 @@ add_executable(nx_software_center
     $<TARGET_OBJECTS:gui>)
 
 target_link_libraries(nx_software_center
+    PUBLIC
     Qt5::Core
     Qt5::Gui
     Qt5::Qml
-    Qt5::Network)
+    Qt5::Network
+    libappimageupdate-qt
+)
 
 install(TARGETS nx_software_center ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 
