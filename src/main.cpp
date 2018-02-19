@@ -5,6 +5,7 @@
 
 #include <ui/UpgraderController.h>
 #include <ui/NotificationsController.h>
+#include <QtQml/qqml.h>
 
 #include "gateways/CacheSource.h"
 #include "gateways/AppImageHubSource.h"
