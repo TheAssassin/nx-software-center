@@ -2,6 +2,9 @@
 # Dependencies
 ###
 
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Network Widgets)
+
+
 include(ExternalProject)
 
 ExternalProject_Add(AppImageUpdate-Qt
@@ -18,8 +21,12 @@ set(AppImageUpdate-Qt_INSTALL_DIR ${INSTALL_DIR})
 
 set(libappimageupdate-qt_PATH ${AppImageUpdate-Qt_INSTALL_DIR}/usr/lib/libappimageupdate-qt.so)
 add_library(libappimageupdate-qt SHARED IMPORTED)
-set_target_properties(libappimageupdate-qt PROPERTIES IMPORTED_LOCATION ${libappimageupdate-qt_PATH})
-include_directories(${AppImageUpdate-Qt_INSTALL_DIR}/usr/include/)
+set_target_properties(libappimageupdate-qt
+    PROPERTIES
+    IMPORTED_LOCATION ${libappimageupdate-qt_PATH}
+    INTERFACE_INCLUDE_DIRECTORIES ${AppImageUpdate-Qt_INSTALL_DIR}/usr/include/
+    INTERFACE_LINK_LIBRARIES Qt5::Widgets
+)
 install(FILES ${libappimageupdate-qt_PATH} DESTINATION lib)
 add_dependencies(libappimageupdate-qt AppImageUpdate-Qt)
 
@@ -27,8 +34,6 @@ add_dependencies(libappimageupdate-qt AppImageUpdate-Qt)
 ###
 # Core
 ###
-
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Network)
 
 set(CORE_SRC
     entities/Application.cpp
