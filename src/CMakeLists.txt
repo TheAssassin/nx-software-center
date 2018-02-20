@@ -12,7 +12,6 @@ ExternalProject_Add(AppImageUpdate-Qt
                       -DBUILD_QT_UI=ON -DBUILD_FLTK_UI=OFF -DUSE_SYSTEM_CURL=1 -DBUILD_CPR_TESTS=0 <SOURCE_DIR>
     BUILD_COMMAND make libappimageupdate-qt
     INSTALL_COMMAND make install DESTDIR=<INSTALL_DIR>
-    UPDATE_COMMAND ""
 )
 ExternalProject_Get_Property(AppImageUpdate-Qt INSTALL_DIR)
 set(AppImageUpdate-Qt_INSTALL_DIR ${INSTALL_DIR})
