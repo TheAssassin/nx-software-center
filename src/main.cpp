@@ -23,6 +23,8 @@
 #include "ui/RegistryController.h"
 #include "ui/UpdaterController.h"
 
+#include <appimage/update/qt-ui.h>
+
 #define QML_MODULE_NAMESPACE "org.nxos.softwarecenter"
 #define QML_MODULE_MAJOR_VERSION 1
 
@@ -57,6 +59,10 @@ int main(int argc, char *argv[]) {
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
+
+    auto updater = appimage::update::qt::QtUpdater::fromEnv();
+    updater->show();
+    updater->setFocus();
 
     return app.exec();
 }
